@@ -32,8 +32,9 @@ PR-01 では Next.js / FastAPI ベースの最小モノレポ基盤を構築し�
 docker compose up --build web api
 ```
 
-- `http://localhost:3000` (Next.js), `http://localhost:8000/healthz` (FastAPI) が立ち上がることを確認
+- `http://localhost:3000` (Next.js), `http://localhost:8001/healthz` (FastAPI) が立ち上がることを確認
 - 停止は `Ctrl+C` → `docker compose down`
+- ホスト側の API ポートは `HOST_API_PORT` 環境変数で変更可能（デフォルト: 8001）
 
 ## よく使うコマンド
 
