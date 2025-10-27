@@ -1,0 +1,23 @@
+[project]
+name = "ai-chat-assistant-api"
+version = "0.1.0"
+description = "AI Chat Assistant FastAPI stub"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.111,<0.112",
+    "uvicorn[standard]>=0.30,<0.31",
+    "pydantic>=2.7,<3"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3,<9",
+    "ruff>=0.5.3,<0.6"
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3,<9",
+    "ruff>=0.5.3,<0.6",
+    "pre-commit>=3.7,<4"
+]

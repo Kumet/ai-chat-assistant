@@ -1,0 +1,44 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: local
+    hooks:
+      - id: pnpm-biome-check
+        name: pnpm biome check
+        language: system
+        entry: bash
+        args:
+          - -lc
+          - |
+            if command -v arch >/dev/null 2>&1; then
+              if arch -arm64 true >/dev/null 2>&1; then
+                exec arch -arm64 pnpm lint:repo
+              fi
+            fi
+            exec pnpm lint:repo
+        pass_filenames: false
+      - id: pnpm-next-lint
+        name: pnpm next lint
+        entry: pnpm lint:web
+        language: system
+        pass_filenames: false
+      - id: uv-ruff
+        name: uv ruff check
+        entry: bash
+        args:
+          - -lc
+          - cd apps/api && uv run -- ruff check
+        language: system
+        pass_filenames: false
+      - id: uv-pytest
+        name: uv pytest
+        entry: bash
+        args:
+          - -lc
+          - cd apps/api && uv run -- pytest
+        language: system
+        pass_filenames: false
+        stages: [push]

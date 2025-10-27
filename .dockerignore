@@ -1,0 +1,17 @@
+.git
+node_modules
+.turbo
+.pnpm-store
+.next
+dist
+build
+coverage
+apps/api/.venv
+.venv
+.env
+.env.local
+*.pyc
+__pycache__/
+Dockerfile.*
+compose.yaml
+README.md
