@@ -1,0 +1,21 @@
+# syntax=docker/dockerfile:1.7
+
+FROM node:20-alpine AS base
+
+ENV PNPM_HOME=/root/.local/share/pnpm \
+    NODE_ENV=development \
+    NEXT_TELEMETRY_DISABLED=1
+ENV PATH=$PNPM_HOME:$PATH
+
+RUN corepack enable pnpm
+
+WORKDIR /app
+
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* turbo.json biome.json tsconfig.base.json ./
+COPY apps/web/package.json ./apps/web/package.json
+COPY packages/ui/package.json ./packages/ui/package.json
+COPY packages/shared/package.json ./packages/shared/package.json
+
+RUN pnpm install --frozen-lockfile || pnpm install
+
+CMD ["pnpm", "dev:web"]

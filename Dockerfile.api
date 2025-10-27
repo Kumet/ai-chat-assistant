@@ -1,0 +1,21 @@
+# syntax=docker/dockerfile:1.7
+
+FROM python:3.12-slim AS base
+
+ENV UV_SYSTEM_PYTHON=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && mv /root/.cargo/bin/uv /usr/local/bin/uv
+
+WORKDIR /app
+
+COPY apps/api/pyproject.toml apps/api/uv.lock* ./apps/api/
+
+RUN cd apps/api && uv sync --frozen || uv sync
+
+CMD ["uv", "run", "--", "uvicorn", "src.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]

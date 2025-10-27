@@ -1,0 +1,10 @@
+{
+  "name": "api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "uv run -- uvicorn src.main:app --reload",
+    "lint": "uv run -- ruff check src",
+    "test": "uv run -- pytest"
+  }
+}

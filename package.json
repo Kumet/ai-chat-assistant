@@ -1,0 +1,19 @@
+{
+	"name": "ai-chat-assistant",
+	"private": true,
+	"version": "0.1.0",
+	"packageManager": "pnpm@9.12.2",
+	"scripts": {
+		"dev:web": "pnpm --filter web dev",
+		"dev:api": "pnpm --filter api dev",
+		"lint": "pnpm run lint:web && pnpm run lint:repo",
+		"lint:web": "pnpm --filter web lint",
+		"lint:repo": "biome check .",
+		"build": "pnpm --filter web build",
+		"clean": "rm -rf node_modules .turbo"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.0",
+		"turbo": "^2.1.1"
+	}
+}
