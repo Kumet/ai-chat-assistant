@@ -45,6 +45,13 @@ export function EvidencePanel({ analysis }: EvidencePanelProps) {
 		[analysis.edges, analysis.symbols],
 	);
 
+	const cyKey = useMemo(() => {
+		if (analysis.symbols.length === 0) {
+			return "cy-empty";
+		}
+		return `${analysis.symbols.length}:${analysis.symbols[0]?.id ?? "root"}`;
+	}, [analysis.symbols]);
+
 	useEffect(() => {
 		const cy = cyRef.current;
 		if (!cy) return;
@@ -62,6 +69,27 @@ export function EvidencePanel({ analysis }: EvidencePanelProps) {
 	}, [analysis.symbols]);
 
 	useEffect(() => {
+		const cy = cyRef.current;
+		if (!cy) return;
+		if (analysis.symbols.length === 0) return;
+		const elementsApi =
+			typeof cy.elements === "function" ? cy.elements() : null;
+		if (!elementsApi || typeof elementsApi.layout !== "function") {
+			return;
+		}
+		const layout = elementsApi.layout({ name: "cose", animate: false });
+		if (!layout || typeof layout.run !== "function") {
+			return;
+		}
+		layout.run();
+		return () => {
+			if (typeof layout.stop === "function") {
+				layout.stop();
+			}
+		};
+	}, [analysis.symbols.length]);
+
+	useEffect(() => {
 		if (!selected || !editorRef.current) {
 			return;
 		}
@@ -74,8 +102,12 @@ export function EvidencePanel({ analysis }: EvidencePanelProps) {
 		<div className={styles.wrapper}>
 			<div className={styles.graphColumn}>
 				<CytoscapeComponent
+					key={cyKey}
 					cy={(instance) => {
-						cyRef.current = instance ?? null;
+						if (!instance) {
+							return;
+						}
+						cyRef.current = instance;
 					}}
 					layout={{ name: "cose" }}
 					elements={elements}

@@ -24,6 +24,9 @@ vi.mock("react-cytoscapejs", () => {
 					selector: string,
 					handler: (payload: { target: { data: () => string } }) => void,
 				) => void;
+				elements: () => {
+					layout: () => { run: () => void; stop: () => void };
+				};
 			}) => void;
 			elements: ElementDefinition[];
 		}) => {
@@ -40,6 +43,12 @@ vi.mock("react-cytoscapejs", () => {
 					handlers.tap = handler;
 				},
 				off: () => {},
+				elements: () => ({
+					layout: () => ({
+						run: () => {},
+						stop: () => {},
+					}),
+				}),
 			});
 
 			const nodes = elements.filter(
