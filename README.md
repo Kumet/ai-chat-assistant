@@ -77,6 +77,19 @@ pre-commit run --all-files
 - 現状はダミー構成のため外部 API 呼び出しや推論コストはありません。
 - Turbo/Biome により lint/build のキャッシュが効き、後続 PR での CI 時間短縮が期待できます。
 - SSE デモはダミーのトークン列とコスト見積もり（0.000002 USD/トークン）を用いており、実際の推論コストとは異なります。
+- `/graph/analyze` はリポジトリ内の関数・クラス名を返すため、プライベートリポジトリで利用する場合はアクセス制御に留意してください。
+
+## AST グラフビューの確認
+
+1. API を起動: `pnpm dev:api` または `HOST_API_PORT=8001 docker compose up api`
+2. Web を起動: `pnpm dev:web` → `http://localhost:3000`
+3. 「参照シンボル依存グラフ」で AST ベースのノード・エッジが描画され、ノードをクリックすると Monaco エディタが該当行へスクロールします
+4. Cytoscape.js によりグラフを描画し、データソースは `/graph/analyze` の JSON レスポンスです
+
+## テスト
+
+- Web: `pnpm --filter web test`
+- API: `uv run -- pytest`
 
 ## 次ステップ
 
