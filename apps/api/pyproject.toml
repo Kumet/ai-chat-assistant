@@ -7,7 +7,8 @@ dependencies = [
     "fastapi>=0.111,<0.112",
     "uvicorn[standard]>=0.30,<0.31",
     "pydantic>=2.7,<3",
-    "sse-starlette>=2.0,<3"
+    "sse-starlette>=2.0,<3",
+    "pytest>=8.3,<9"
 ]
 
 [project.optional-dependencies]
