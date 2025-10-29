@@ -22,6 +22,10 @@ IGNORED_DIR_NAMES = {
     "coverage",
 }
 SNIPPET_CONTEXT_LINES = 8
+MAX_CODE_FILE_BYTES = 128_000
+MAX_FILES_SCANNED = 150
+MAX_SYMBOLS_EMITTED = 400
+MAX_EDGES_EMITTED = 800
 TS_FUNCTION_PATTERN = re.compile(r"(?:export\s+)?function\s+(?P<name>[A-Za-z0-9_]+)\s*\(")
 TS_CLASS_PATTERN = re.compile(r"(?:export\s+)?class\s+(?P<name>[A-Za-z0-9_]+)")
 TS_CALL_PATTERN = re.compile(r"(?P<name>[A-Za-z0-9_]+)\s*\(")
@@ -156,17 +160,11 @@ def analyze_typescript_file(file_path: Path) -> Iterable[SymbolDraft]:
     if not symbols:
         return symbols
 
-    references = set(
-        call.group("name")
-        for call in TS_CALL_PATTERN.finditer(source)
-        if call.group("name") not in {"if", "for", "while", "switch", "return"}
-    )
-    for symbol in symbols:
-        symbol.references.update(references - {symbol.name})
     return symbols
 
 
 def iter_code_files() -> Iterable[Path]:
+    count = 0
     for base in CODE_DIRECTORIES:
         if not base.exists():
             continue
@@ -174,6 +172,12 @@ def iter_code_files() -> Iterable[Path]:
             if path.is_file() and path.suffix in {".py", ".ts", ".tsx"}:
                 if any(name in IGNORED_DIR_NAMES for name in path.parts):
                     continue
+                if path.stat().st_size > MAX_CODE_FILE_BYTES:
+                    continue
+                yield path
+                count += 1
+                if count >= MAX_FILES_SCANNED:
+                    return
                 yield path
 
 
@@ -193,7 +197,7 @@ def analyse_repository() -> AnalysisResponseModel:
     for draft in drafts:
         symbol_lookup.setdefault(draft.name, []).append(draft)
 
-    edges: set[tuple[str, str]] = set()
+    edges: list[tuple[str, str]] = []
     for draft in drafts:
         for reference in draft.references:
             candidates = symbol_lookup.get(reference)
@@ -202,7 +206,11 @@ def analyse_repository() -> AnalysisResponseModel:
             target = candidates[0]
             if draft.id == target.id:
                 continue
-            edges.add((draft.id, target.id))
+            edges.append((draft.id, target.id))
+            if len(edges) >= MAX_EDGES_EMITTED:
+                break
+        if len(edges) >= MAX_EDGES_EMITTED:
+            break
 
     result = AnalysisResponseModel(
         symbols=[
@@ -216,11 +224,11 @@ def analyse_repository() -> AnalysisResponseModel:
                 source=draft.source,
                 sourceStartLine=draft.source_start_line,
             )
-            for draft in drafts
+            for draft in drafts[:MAX_SYMBOLS_EMITTED]
         ],
         edges=[
             DependencyEdgeModel(source=source, target=target)
-            for source, target in sorted(edges)
+            for source, target in edges[:MAX_EDGES_EMITTED]
         ],
     )
     _ANALYSIS_CACHE = result
