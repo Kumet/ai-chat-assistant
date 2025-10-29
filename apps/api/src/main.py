@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes import chat_router
+from .routes import analysis_router, chat_router
 
 
 def create_app() -> FastAPI:
@@ -21,6 +21,7 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(chat_router)
+    app.include_router(analysis_router)
 
     @app.get("/healthz", tags=["health"])
     async def health_check() -> dict[str, str]:

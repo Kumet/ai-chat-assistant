@@ -1,13 +1,49 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import type { AnalysisSummary } from "@ai-chat-assistant/shared";
+import { GRAPH_ANALYSIS_ENDPOINT } from "@ai-chat-assistant/shared";
 import { MessageList } from "./components/chat/message-list";
 import { TokenMeter } from "./components/chat/token-meter";
+import { EvidencePanel } from "./components/evidence";
 import { useChatStream } from "./hooks/use-chat-stream";
 
 export default function HomePage() {
 	const { tokens, usage, status, lastError, restart } = useChatStream();
+	const [analysis, setAnalysis] = useState<AnalysisSummary | null>(null);
+	const [analysisError, setAnalysisError] = useState<string | null>(null);
+
+	useEffect(() => {
+		const controller = new AbortController();
+		const base =
+			process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8001";
+
+		async function loadAnalysis() {
+			try {
+				const response = await fetch(`${base}${GRAPH_ANALYSIS_ENDPOINT}`, {
+					signal: controller.signal,
+				});
+				if (!response.ok) {
+					throw new Error(`API error: ${response.status}`);
+				}
+				const payload = (await response.json()) as AnalysisSummary;
+				setAnalysis(payload);
+			} catch (error) {
+				if (error instanceof DOMException && error.name === "AbortError") {
+					return;
+				}
+				setAnalysisError(
+					error instanceof Error
+						? error.message
+						: "解析結果の取得に失敗しました",
+				);
+			}
+		}
+
+		loadAnalysis();
+		return () => controller.abort();
+	}, []);
 
 	const fullText = useMemo(
 		() => tokens.map((event) => event.payload.token).join(""),
@@ -76,6 +112,18 @@ export default function HomePage() {
 				>
 					{fullText || "(まだトークンは受信されていません)"}
 				</pre>
+			</section>
+			<section style={{ display: "grid", gap: "1rem" }}>
+				<h2 style={{ margin: 0 }}>参照シンボル依存グラフ</h2>
+				{analysis ? (
+					<div style={{ minHeight: "520px" }}>
+						<EvidencePanel analysis={analysis} />
+					</div>
+				) : analysisError ? (
+					<p style={{ color: "#f97316" }}>{analysisError}</p>
+				) : (
+					<p style={{ color: "#94a3b8" }}>依存グラフを解析中です…</p>
+				)}
 			</section>
 		</main>
 	);
