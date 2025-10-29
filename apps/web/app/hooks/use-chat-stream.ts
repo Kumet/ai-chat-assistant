@@ -54,7 +54,31 @@ export const useChatStream = (): UseChatStreamResult => {
 				return;
 			}
 			const data = (await response.json()) as SloMetricsResponse;
-			setSloMetric(data.records[0] ?? null);
+			const raw = data.records[0];
+			if (!raw) {
+				setSloMetric(null);
+				return;
+			}
+			const durationRaw =
+				typeof raw.durationMs === "number"
+					? raw.durationMs
+					: typeof raw.duration_ms === "number"
+						? raw.duration_ms
+						: Number(raw.duration_ms ?? raw.durationMs ?? 0);
+			const tokensRaw = Number(raw.tokens ?? 0);
+			const cacheRaw = Boolean(raw.cache_hit ?? raw.cacheHit);
+			const metric: SloMetric = {
+				method: String(raw.method ?? ""),
+				path: String(raw.path ?? ""),
+				durationMs: Number.isFinite(durationRaw) ? durationRaw : 0,
+				tokens: Number.isFinite(tokensRaw) ? tokensRaw : 0,
+				cacheHit: cacheRaw,
+				timestamp:
+					typeof raw.timestamp === "string"
+						? raw.timestamp
+						: new Date().toISOString(),
+			};
+			setSloMetric(metric);
 		} catch (error) {
 			console.warn("Failed to load SLO metrics", error);
 		}

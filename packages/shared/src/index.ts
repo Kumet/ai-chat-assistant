@@ -128,5 +128,5 @@ export type SloMetric = {
 };
 
 export type SloMetricsResponse = {
-	records: SloMetric[];
+	records: Array<Record<string, unknown>>;
 };
