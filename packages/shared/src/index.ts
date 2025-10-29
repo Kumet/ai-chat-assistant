@@ -115,3 +115,18 @@ export type ToolErrorEvent = {
 };
 
 export type ToolStreamEvent = ToolTokenEvent | ToolStatusEvent | ToolErrorEvent;
+
+export const SLO_METRICS_ENDPOINT = "/metrics/slo/latest";
+
+export type SloMetric = {
+	method: string;
+	path: string;
+	durationMs: number;
+	tokens: number;
+	cacheHit: boolean;
+	timestamp: string;
+};
+
+export type SloMetricsResponse = {
+	records: Array<Record<string, unknown>>;
+};

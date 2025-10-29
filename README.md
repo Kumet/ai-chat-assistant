@@ -58,6 +58,12 @@ docker compose up --build web api
 
    `event: tool` ではステージとステータス、`event: token` では pytest 実行ログが JSON で流れます。
 
+### コスト/速度 SLO メーターの確認
+
+1. `docker compose up --build web api` もしくは `pnpm dev:web` / `pnpm dev:api` を起動
+2. チャット画面で SSE ストリームを開始すると、トークン/コストメーターの下に応答時間・使用トークン・キャッシュヒット率が表示されます
+3. `/metrics/slo/latest` では最新の SLO 計測結果を JSON で取得でき、UI はこのエンドポイントをポーリングして閾値超過をアラート表示します
+
 ## よく使うコマンド
 
 - フロント開発サーバー: `pnpm dev:web`
@@ -93,6 +99,7 @@ pre-commit run --all-files
 - Turbo/Biome により lint/build のキャッシュが効き、後続 PR での CI 時間短縮が期待できます。
 - SSE デモはダミーのトークン列とコスト見積もり（0.000002 USD/トークン）を用いており、実際の推論コストとは異なります。
 - `/tools/tests/generate` は毎回テンポラリディレクトリを生成し、その中で pytest を実行するため利用者コードへの副作用はありません（CI と同一の `uv` 仮想環境を再利用）。
+- `/metrics/slo/latest` は直近のリクエスト SLO を返すため、結果にはタイムスタンプやパス情報が含まれます。機微情報は含めませんが、必要に応じて認証の導入をご検討ください。
 - `/graph/analyze` はリポジトリ内の関数・クラス名を返すため、プライベートリポジトリで利用する場合はアクセス制御に留意してください。
 
 ## AST グラフビューの確認

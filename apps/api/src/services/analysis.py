@@ -31,6 +31,7 @@ TS_CLASS_PATTERN = re.compile(r"(?:export\s+)?class\s+(?P<name>[A-Za-z0-9_]+)")
 TS_CALL_PATTERN = re.compile(r"(?P<name>[A-Za-z0-9_]+)\s*\(")
 
 _ANALYSIS_CACHE: AnalysisResponseModel | None = None
+_LAST_CACHE_HIT: bool = False
 
 
 @dataclass
@@ -181,9 +182,15 @@ def iter_code_files() -> Iterable[Path]:
                 yield path
 
 
+def was_cache_hit() -> bool:
+    return _LAST_CACHE_HIT
+
+
 def analyse_repository() -> AnalysisResponseModel:
     global _ANALYSIS_CACHE
+    global _LAST_CACHE_HIT
     if _ANALYSIS_CACHE is not None:
+        _LAST_CACHE_HIT = True
         return _ANALYSIS_CACHE
 
     drafts: list[SymbolDraft] = []
@@ -240,4 +247,5 @@ def analyse_repository() -> AnalysisResponseModel:
         ],
     )
     _ANALYSIS_CACHE = result
+    _LAST_CACHE_HIT = False
     return result
