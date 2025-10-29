@@ -45,13 +45,6 @@ export function EvidencePanel({ analysis }: EvidencePanelProps) {
 		[analysis.edges, analysis.symbols],
 	);
 
-	const cyKey = useMemo(() => {
-		if (analysis.symbols.length === 0) {
-			return "cy-empty";
-		}
-		return `${analysis.symbols.length}:${analysis.symbols[0]?.id ?? "root"}`;
-	}, [analysis.symbols]);
-
 	useEffect(() => {
 		const cy = cyRef.current;
 		if (!cy) return;
@@ -83,11 +76,24 @@ export function EvidencePanel({ analysis }: EvidencePanelProps) {
 		}
 		layout.run();
 		return () => {
-			if (typeof layout.stop === "function") {
+			if (
+				typeof layout.stop === "function" &&
+				!(typeof cy.destroyed === "function" && cy.destroyed())
+			) {
 				layout.stop();
 			}
 		};
 	}, [analysis.symbols.length]);
+
+	useEffect(() => {
+		return () => {
+			const cy = cyRef.current;
+			if (cy && typeof cy.destroy === "function" && !cy.destroyed?.()) {
+				cy.destroy();
+			}
+			cyRef.current = null;
+		};
+	}, []);
 
 	useEffect(() => {
 		if (!selected || !editorRef.current) {
@@ -102,7 +108,6 @@ export function EvidencePanel({ analysis }: EvidencePanelProps) {
 		<div className={styles.wrapper}>
 			<div className={styles.graphColumn}>
 				<CytoscapeComponent
-					key={cyKey}
 					cy={(instance) => {
 						if (!instance) {
 							return;
