@@ -43,8 +43,11 @@ vi.mock("react-cytoscapejs", () => {
 			});
 
 			const nodes = elements.filter(
-				(element): element is ElementDefinition & { data: { id: string; label?: string } } =>
-					!("source" in element.data),
+				(
+					element,
+				): element is ElementDefinition & {
+					data: { id: string; label?: string };
+				} => !("source" in element.data),
 			);
 			return (
 				<div>
