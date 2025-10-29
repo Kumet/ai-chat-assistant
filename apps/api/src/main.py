@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes import analysis_router, chat_router, tools_router
+from .middleware.metrics import RequestMetricsMiddleware
+from .routes import analysis_router, chat_router, metrics_router, tools_router
 
 
 def create_app() -> FastAPI:
@@ -10,6 +11,10 @@ def create_app() -> FastAPI:
         title="AI Chat Assistant API",
         version="0.1.0",
         description="PR-01: モノレポ基盤用の FastAPI スタブ"
+    )
+
+    app.add_middleware(
+        RequestMetricsMiddleware,
     )
 
     app.add_middleware(
@@ -22,6 +27,7 @@ def create_app() -> FastAPI:
 
     app.include_router(chat_router)
     app.include_router(analysis_router)
+    app.include_router(metrics_router)
     app.include_router(tools_router)
 
     @app.get("/healthz", tags=["health"])

@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from typing import AsyncGenerator
 from uuid import uuid4
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from sse_starlette.sse import EventSourceResponse
 
 
@@ -65,12 +65,22 @@ async def _token_emitter() -> AsyncGenerator[str, None]:
 
 
 @router.get("/stream")
-async def stream_chat() -> EventSourceResponse:
+async def stream_chat(request: Request) -> EventSourceResponse:
     """Stream dummy token events over Server-Sent Events."""
 
     async def event_publisher() -> AsyncGenerator[dict[str, str], None]:
+        tokens_used = 0
         async for payload in _token_emitter():
+            try:
+                data = json.loads(payload)
+                usage = data.get("usage")
+                if isinstance(usage, dict) and "totalTokens" in usage:
+                    tokens_used = max(tokens_used, int(usage["totalTokens"]))
+            except Exception:  # pragma: no cover - best effort parsing
+                pass
             yield {"data": payload}
+        request.state.slo_tokens = tokens_used
+        request.state.slo_cache_hit = False
 
     headers = {
         "Cache-Control": "no-cache",

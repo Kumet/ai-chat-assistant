@@ -8,6 +8,9 @@ import {
 	type ChatStreamEvent,
 	type ChatStreamTokenEvent,
 	type ChatStreamUsage,
+	SLO_METRICS_ENDPOINT,
+	type SloMetric,
+	type SloMetricsResponse,
 } from "@ai-chat-assistant/shared";
 
 type StreamStatus = "idle" | "connecting" | "streaming" | "completed" | "error";
@@ -19,6 +22,14 @@ const resolveStreamUrl = (): string => {
 	return `${base}${CHAT_STREAM_ENDPOINT}`;
 };
 
+const resolveSloUrl = (path: string): string => {
+	const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? DEFAULT_BASE_URL;
+	const url = new URL(`${base}${SLO_METRICS_ENDPOINT}`);
+	url.searchParams.set("path", path);
+	url.searchParams.set("limit", "1");
+	return url.toString();
+};
+
 export type UseChatStreamResult = {
 	events: ChatStreamEvent[];
 	tokens: ChatStreamTokenEvent[];
@@ -26,13 +37,28 @@ export type UseChatStreamResult = {
 	status: StreamStatus;
 	lastError: string | null;
 	restart: () => void;
+	sloMetric: SloMetric | null;
 };
 
 export const useChatStream = (): UseChatStreamResult => {
 	const [events, setEvents] = useState<ChatStreamEvent[]>([]);
 	const [status, setStatus] = useState<StreamStatus>("idle");
 	const [lastError, setLastError] = useState<string | null>(null);
+	const [sloMetric, setSloMetric] = useState<SloMetric | null>(null);
 	const sourceRef = useRef<EventSource | null>(null);
+
+	const fetchLatestSlo = useCallback(async () => {
+		try {
+			const response = await fetch(resolveSloUrl("/chat/stream"));
+			if (!response.ok) {
+				return;
+			}
+			const data = (await response.json()) as SloMetricsResponse;
+			setSloMetric(data.records[0] ?? null);
+		} catch (error) {
+			console.warn("Failed to load SLO metrics", error);
+		}
+	}, []);
 
 	const startStream = useCallback(() => {
 		if (sourceRef.current) {
@@ -41,6 +67,7 @@ export const useChatStream = (): UseChatStreamResult => {
 		setStatus("connecting");
 		setLastError(null);
 		setEvents([]);
+		setSloMetric(null);
 
 		const url = resolveStreamUrl();
 		const eventSource = new EventSource(url);
@@ -55,6 +82,7 @@ export const useChatStream = (): UseChatStreamResult => {
 					setStatus("completed");
 					eventSource.close();
 					sourceRef.current = null;
+					void fetchLatestSlo();
 				}
 			} catch (error) {
 				setLastError(
@@ -71,7 +99,7 @@ export const useChatStream = (): UseChatStreamResult => {
 		};
 
 		sourceRef.current = eventSource;
-	}, []);
+	}, [fetchLatestSlo]);
 
 	useEffect(() => {
 		startStream();
@@ -108,5 +136,6 @@ export const useChatStream = (): UseChatStreamResult => {
 		status,
 		lastError,
 		restart: startStream,
+		sloMetric,
 	};
 };

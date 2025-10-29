@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AnalysisSummary } from "@ai-chat-assistant/shared";
 import { GRAPH_ANALYSIS_ENDPOINT } from "@ai-chat-assistant/shared";
 import { MessageList } from "./components/chat/message-list";
+import { SloMeter } from "./components/chat/slo-meter";
 import { TokenMeter } from "./components/chat/token-meter";
 import { EvidencePanel } from "./components/evidence";
 import { ToolLogList } from "./components/tools/tool-log-list";
@@ -23,7 +24,8 @@ const DEFAULT_TOOL_PROMPT =
 	"divide 関数のゼロ除算を検出するFailing Testを作り、pytestで実況してください";
 
 export default function HomePage() {
-	const { tokens, usage, status, lastError, restart } = useChatStream();
+	const { tokens, usage, status, lastError, restart, sloMetric } =
+		useChatStream();
 	const [analysis, setAnalysis] = useState<AnalysisSummary | null>(null);
 	const [analysisError, setAnalysisError] = useState<string | null>(null);
 	const [toolPrompt, setToolPrompt] = useState<string>(DEFAULT_TOOL_PROMPT);
@@ -109,6 +111,7 @@ export default function HomePage() {
 			</header>
 			<section style={{ display: "grid", gap: "1rem" }}>
 				<TokenMeter usage={usage} status={status} />
+				<SloMeter metric={sloMetric} />
 				<div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
 					<button
 						type="button"
