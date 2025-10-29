@@ -11,6 +11,11 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@/": `${path.resolve(__dirname, "app/")}/`,
+			"@ai-chat-assistant/shared": path.resolve(
+				__dirname,
+				"../..",
+				"packages/shared/src/index.ts",
+			),
 		},
 	},
 });

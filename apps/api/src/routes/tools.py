@@ -14,6 +14,9 @@ from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+from ..models import FixItRequestModel, FixItResponseModel
+from ..services.fixit import FixItRunner
+
 
 ToolStage = Literal[
     "test_generation",
@@ -328,4 +331,21 @@ def test_divide_zero_raises():
         event_publisher(),
         media_type="text/event-stream",
         headers=headers,
+    )
+
+
+@router.post("/fixit", response_model=FixItResponseModel)
+async def run_fixit(request: FixItRequestModel) -> FixItResponseModel:
+    """
+    ESLint / Ruff / Black を実行し、Draft PR を作成する FixIt エンドポイント。
+    """
+
+    runner = FixItRunner(request)
+    result = await runner.execute()
+    return FixItResponseModel(
+        status=result.status,
+        branch_name=result.branch_name,
+        pr_url=result.pr_url,
+        logs=result.logs,
+        error=result.error,
     )

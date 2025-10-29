@@ -7,6 +7,7 @@ import { GRAPH_ANALYSIS_ENDPOINT } from "@ai-chat-assistant/shared";
 import { MessageList } from "./components/chat/message-list";
 import { TokenMeter } from "./components/chat/token-meter";
 import { EvidencePanel } from "./components/evidence";
+import { FixItPanel } from "./components/tools/fixit-panel";
 import { ToolLogList } from "./components/tools/tool-log-list";
 import { useChatStream } from "./hooks/use-chat-stream";
 import { type ToolStreamStatus, useToolStream } from "./hooks/use-tool-stream";
@@ -204,6 +205,14 @@ export default function HomePage() {
 					) : null}
 				</div>
 				<ToolLogList events={toolEvents} />
+			</section>
+			<section style={{ display: "grid", gap: "1rem" }}>
+				<h2 style={{ margin: 0 }}>FixIt ワンクリック</h2>
+				<p style={{ margin: 0, color: "#94a3b8" }}>
+					ESLint / Ruff / Black を自動実行し、Draft PR を作成します。ブランチは
+					`fixit/` プレフィクスで作成されます。
+				</p>
+				<FixItPanel />
 			</section>
 			<section style={{ display: "grid", gap: "0.5rem" }}>
 				<h2 style={{ margin: 0 }}>連結メッセージ</h2>

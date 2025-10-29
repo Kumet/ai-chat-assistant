@@ -115,3 +115,25 @@ export type ToolErrorEvent = {
 };
 
 export type ToolStreamEvent = ToolTokenEvent | ToolStatusEvent | ToolErrorEvent;
+
+export const FIXIT_ENDPOINT = "/tools/fixit";
+
+export type FixItTool = "eslint" | "ruff" | "black";
+
+export type FixItStatus = "no_changes" | "created" | "failed";
+
+export type FixItRequest = {
+	tools?: FixItTool[];
+	baseBranch?: string;
+	push?: boolean;
+	prTitle?: string;
+	prBody?: string | null;
+};
+
+export type FixItResponse = {
+	status: FixItStatus;
+	branchName?: string | null;
+	prUrl?: string | null;
+	logs: string[];
+	error?: string | null;
+};

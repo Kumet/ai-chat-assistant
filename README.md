@@ -58,6 +58,13 @@ docker compose up --build web api
 
    `event: tool` ではステージとステータス、`event: token` では pytest 実行ログが JSON で流れます。
 
+### FixIt ワンクリックの確認
+
+1. `GITHUB_TOKEN`（Draft PR を作成できるスコープ: `repo`）を `.env.local` などに設定し、API 側で参照できるようにします。
+2. `docker compose up --build web api` または `pnpm dev:web` / `pnpm dev:api` を起動。
+3. `http://localhost:3000` の「FixIt ワンクリック」でボタンを押下すると、ESLint / Ruff / Black を自動実行し、`fixit/<timestamp>` ブランチを作成して Draft PR を公開します。
+4. 完了すると PR の URL と詳細ログが表示されます。`GITHUB_TOKEN` 未設定や作業ツリーに未コミットの変更がある場合はその旨をエラー表示します。
+
 ## よく使うコマンド
 
 - フロント開発サーバー: `pnpm dev:web`
@@ -93,6 +100,7 @@ pre-commit run --all-files
 - Turbo/Biome により lint/build のキャッシュが効き、後続 PR での CI 時間短縮が期待できます。
 - SSE デモはダミーのトークン列とコスト見積もり（0.000002 USD/トークン）を用いており、実際の推論コストとは異なります。
 - `/tools/tests/generate` は毎回テンポラリディレクトリを生成し、その中で pytest を実行するため利用者コードへの副作用はありません（CI と同一の `uv` 仮想環境を再利用）。
+- `/tools/fixit` は `GITHUB_TOKEN` を利用して Draft PR を作成します。トークンの権限は最小限（repo スコープ）に留め、不要になったら失効させてください。
 - `/graph/analyze` はリポジトリ内の関数・クラス名を返すため、プライベートリポジトリで利用する場合はアクセス制御に留意してください。
 
 ## AST グラフビューの確認
