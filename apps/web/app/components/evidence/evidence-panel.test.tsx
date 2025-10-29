@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { ElementsDefinition } from "cytoscape";
+import type { ElementDefinition } from "cytoscape";
 
 import type { AnalysisSummary } from "@ai-chat-assistant/shared";
 import { EvidencePanel } from "./evidence-panel";
@@ -25,7 +25,7 @@ vi.mock("react-cytoscapejs", () => {
 					handler: (payload: { target: { data: () => string } }) => void,
 				) => void;
 			}) => void;
-			elements: ElementsDefinition;
+			elements: ElementDefinition[];
 		}) => {
 			const handlers: Record<
 				string,
@@ -42,9 +42,10 @@ vi.mock("react-cytoscapejs", () => {
 				off: () => {},
 			});
 
-			const nodes = (elements?.nodes ?? []) as Array<{
-				data: { id: string; label?: string };
-			}>;
+			const nodes = elements.filter(
+				(element): element is ElementDefinition & { data: { id: string; label?: string } } =>
+					!("source" in element.data),
+			);
 			return (
 				<div>
 					{nodes

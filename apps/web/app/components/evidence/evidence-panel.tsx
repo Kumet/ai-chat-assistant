@@ -6,7 +6,7 @@ import type { AnalysisSummary, CodeSymbol } from "@ai-chat-assistant/shared";
 import Editor from "@monaco-editor/react";
 import type {
 	Core as CytoscapeCore,
-	ElementsDefinition,
+	ElementDefinition,
 	EventObjectNode,
 } from "cytoscape";
 import type { editor as MonacoEditor } from "monaco-editor";
@@ -25,15 +25,15 @@ export function EvidencePanel({ analysis }: EvidencePanelProps) {
 	const editorRef = useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
 	const cyRef = useRef<CytoscapeCore | null>(null);
 
-	const elements = useMemo<ElementsDefinition>(
-		() => ({
-			nodes: analysis.symbols.map((symbol) => ({
+	const elements = useMemo<ElementDefinition[]>(
+		() => [
+			...analysis.symbols.map((symbol) => ({
 				data: {
 					id: symbol.id,
 					label: symbol.name,
 				},
 			})),
-			edges: analysis.edges.map((edge, index) => ({
+			...analysis.edges.map((edge, index) => ({
 				data: {
 					id: `${edge.source}-${edge.target}-${index}`,
 					source: edge.source,
@@ -41,7 +41,7 @@ export function EvidencePanel({ analysis }: EvidencePanelProps) {
 					label: edge.label ?? "",
 				},
 			})),
-		}),
+		],
 		[analysis.edges, analysis.symbols],
 	);
 
