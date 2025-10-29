@@ -6,7 +6,8 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.111,<0.112",
     "uvicorn[standard]>=0.30,<0.31",
-    "pydantic>=2.7,<3"
+    "pydantic>=2.7,<3",
+    "sse-starlette>=2.0,<3"
 ]
 
 [project.optional-dependencies]
