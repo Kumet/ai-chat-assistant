@@ -3,7 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.web
-    command: pnpm dev:web
+    command: >-
+      sh -c "pnpm install --frozen-lockfile --prefer-offline && pnpm --filter web dev"
     ports:
       - "3000:3000"
     environment:
