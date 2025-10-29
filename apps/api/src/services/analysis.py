@@ -212,6 +212,14 @@ def analyse_repository() -> AnalysisResponseModel:
         if len(edges) >= MAX_EDGES_EMITTED:
             break
 
+    limited_drafts = drafts[:MAX_SYMBOLS_EMITTED]
+    allowed_ids = {draft.id for draft in limited_drafts}
+    limited_edges = [
+        (source, target)
+        for source, target in edges
+        if source in allowed_ids and target in allowed_ids
+    ][:MAX_EDGES_EMITTED]
+
     result = AnalysisResponseModel(
         symbols=[
             SymbolModel(
@@ -224,11 +232,11 @@ def analyse_repository() -> AnalysisResponseModel:
                 source=draft.source,
                 sourceStartLine=draft.source_start_line,
             )
-            for draft in drafts[:MAX_SYMBOLS_EMITTED]
+            for draft in limited_drafts
         ],
         edges=[
             DependencyEdgeModel(source=source, target=target)
-            for source, target in edges[:MAX_EDGES_EMITTED]
+            for source, target in limited_edges
         ],
     )
     _ANALYSIS_CACHE = result
