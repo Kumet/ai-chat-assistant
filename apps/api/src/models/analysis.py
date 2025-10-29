@@ -21,6 +21,7 @@ class SymbolModel(BaseModel):
     line: int
     column: int
     source: str
+    sourceStartLine: int = 1
 
 
 class DependencyEdgeModel(BaseModel):

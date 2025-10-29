@@ -106,6 +106,7 @@ const analysis: AnalysisSummary = {
 			line: 42,
 			column: 0,
 			source: "def exampleFunction():\n    return True\n",
+			sourceStartLine: 41,
 		},
 	],
 	edges: [],

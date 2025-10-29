@@ -66,7 +66,8 @@ export function EvidencePanel({ analysis }: EvidencePanelProps) {
 			return;
 		}
 
-		editorRef.current.revealLineInCenter(selected.line);
+		const relativeLine = selected.line - (selected.sourceStartLine ?? 1) + 1;
+		editorRef.current.revealLineInCenter(Math.max(relativeLine, 1));
 	}, [selected]);
 
 	return (

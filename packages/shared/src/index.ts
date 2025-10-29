@@ -54,6 +54,7 @@ export type CodeSymbol = {
 	line: number;
 	column: number;
 	source: string;
+	sourceStartLine: number;
 };
 
 export type DependencyEdge = {
