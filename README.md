@@ -43,6 +43,21 @@ docker compose up --build web api
 3. 「受信トークン」セクションで SSE によるトークンストリームが次々に表示され、トークン／コストメーターが更新されることを確認
 4. CLI から確認する場合は `curl -N http://localhost:8001/chat/stream` を実行し SSE の生データを閲覧
 
+### Failing Test 実況ツールの確認
+
+1. `docker compose up --build web api` または `pnpm dev:web` / `pnpm dev:api` で両方を起動
+2. `http://localhost:3000` の「Failing Test ジェネレーター実況」セクションに会話プロンプト（例: `divide 関数のゼロ除算を検出して`）を入力し「実況開始」をクリック
+3. UI 上で `event:token`（pytest ログ）と `event:tool`（ステージ進捗）が逐次表示され、「失敗 → 修正案 → 成功」の流れが実況されることを確認
+4. API を直接確認する場合は以下のように `POST` で SSE を購読
+
+   ```bash
+   curl -N -H "Content-Type: application/json" -H "Accept: text/event-stream" \\
+     -d '{"conversation":[{"role":"user","content":"divide 関数のゼロ除算テストが欲しい"}]}' \\
+     http://localhost:8001/tools/tests/generate
+   ```
+
+   `event: tool` ではステージとステータス、`event: token` では pytest 実行ログが JSON で流れます。
+
 ## よく使うコマンド
 
 - フロント開発サーバー: `pnpm dev:web`
@@ -77,6 +92,7 @@ pre-commit run --all-files
 - 現状はダミー構成のため外部 API 呼び出しや推論コストはありません。
 - Turbo/Biome により lint/build のキャッシュが効き、後続 PR での CI 時間短縮が期待できます。
 - SSE デモはダミーのトークン列とコスト見積もり（0.000002 USD/トークン）を用いており、実際の推論コストとは異なります。
+- `/tools/tests/generate` は毎回テンポラリディレクトリを生成し、その中で pytest を実行するため利用者コードへの副作用はありません（CI と同一の `uv` 仮想環境を再利用）。
 - `/graph/analyze` はリポジトリ内の関数・クラス名を返すため、プライベートリポジトリで利用する場合はアクセス制御に留意してください。
 
 ## AST グラフビューの確認
@@ -93,6 +109,6 @@ pre-commit run --all-files
 
 ## 次ステップ
 
-- PR-02: Web SSE ダミー UI の実装
-- PR-03: `/chat/stream` SSE スタブと FSM 構成
-- PR-04: Lint/Format/テスト/CI スケルトン
+- 実際のテストケース生成ロジック（LLM/RAG 連携）と修正パッチ適用パイプラインの導入
+- TypeScript パーサーを用いた AST 解析の精度向上とシンボル解決
+- SSE ログの履歴保存（Draft PR 連携、GitHub App でのコメント反映）

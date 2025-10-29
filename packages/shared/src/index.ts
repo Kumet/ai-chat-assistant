@@ -67,3 +67,51 @@ export type AnalysisSummary = {
 	symbols: CodeSymbol[];
 	edges: DependencyEdge[];
 };
+
+export const TOOL_STREAM_ENDPOINT = "/tools/tests/generate";
+
+export const TOOL_STREAM_EVENT = {
+	token: "token",
+	tool: "tool",
+	error: "error",
+} as const;
+
+export type ToolStage =
+	| "test_generation"
+	| "pytest_initial_run"
+	| "fix_application"
+	| "pytest_rerun"
+	| "completed";
+
+export type ToolStatus = "pending" | "in_progress" | "failed" | "succeeded";
+
+export type ToolTokenPayload = {
+	stage: ToolStage;
+	message: string;
+	timestamp: string;
+};
+
+export type ToolStatusPayload = {
+	stage: ToolStage;
+	status: ToolStatus;
+	summary?: string;
+	timestamp: string;
+};
+
+export type ToolTokenEvent = {
+	type: typeof TOOL_STREAM_EVENT.token;
+	payload: ToolTokenPayload;
+};
+
+export type ToolStatusEvent = {
+	type: typeof TOOL_STREAM_EVENT.tool;
+	payload: ToolStatusPayload;
+};
+
+export type ToolErrorEvent = {
+	type: typeof TOOL_STREAM_EVENT.error;
+	message: string;
+	timestamp: string;
+};
+
+export type ToolStreamEvent = ToolTokenEvent | ToolStatusEvent | ToolErrorEvent;

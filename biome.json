@@ -1,24 +1,24 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
-  "files": {
-    "ignore": [
-      "apps/api/**",
-      "node_modules/**",
-      "dist/**",
-      ".next/**",
-      "**/.pnpm-store/**"
-    ]
-  },
-  "formatter": {
-    "enabled": true,
-    "indentWidth": 2
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "suspicious": {
-        "noExplicitAny": "warn"
-      }
-    }
-  }
+	"$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
+	"files": {
+		"ignore": [
+			"apps/api/**",
+			"node_modules/**",
+			"dist/**",
+			".next/**",
+			"**/.pnpm-store/**"
+		]
+	},
+	"formatter": {
+		"enabled": true,
+		"indentWidth": 2
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"suspicious": {
+				"noExplicitAny": "warn"
+			}
+		}
+	}
 }
