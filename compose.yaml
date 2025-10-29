@@ -7,7 +7,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      NEXT_PUBLIC_API_BASE_URL: http://api:8000
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:${HOST_API_PORT:-8001}
     volumes:
       - ./:/app
       - web_node_modules:/app/node_modules

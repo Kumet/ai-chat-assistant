@@ -36,6 +36,13 @@ docker compose up --build web api
 - 停止は `Ctrl+C` → `docker compose down`
 - ホスト側の API ポートは `HOST_API_PORT` 環境変数で変更可能（デフォルト: 8001）
 
+### SSE デモの確認
+
+1. API サーバー: `pnpm dev:api` または `HOST_API_PORT=8001 docker compose up api`
+2. Web: `pnpm dev:web` を起動し `http://localhost:3000` へアクセス
+3. 「受信トークン」セクションで SSE によるトークンストリームが次々に表示され、トークン／コストメーターが更新されることを確認
+4. CLI から確認する場合は `curl -N http://localhost:8001/chat/stream` を実行し SSE の生データを閲覧
+
 ## よく使うコマンド
 
 - フロント開発サーバー: `pnpm dev:web`
@@ -69,6 +76,7 @@ pre-commit run --all-files
 - `.env.example` には秘密情報を含めず、実値は `.env.local` にのみ配置してください。
 - 現状はダミー構成のため外部 API 呼び出しや推論コストはありません。
 - Turbo/Biome により lint/build のキャッシュが効き、後続 PR での CI 時間短縮が期待できます。
+- SSE デモはダミーのトークン列とコスト見積もり（0.000002 USD/トークン）を用いており、実際の推論コストとは異なります。
 
 ## 次ステップ
 
